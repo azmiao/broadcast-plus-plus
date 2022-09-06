@@ -44,7 +44,7 @@ async def broadcast(session: CommandSession):
             await asyncio.sleep(0.5)
             try:
                 msg_obj = await session.bot.send_group_msg(self_id=sid, group_id=g, message=bc_msg)
-                with await lock:
+                async with lock:
                     broadcast_record.append(msg_obj['message_id'])
                 hoshino.logger.info(f'群{g} 投递广播成功')
             except Exception as e:
@@ -55,7 +55,7 @@ async def broadcast(session: CommandSession):
                     hoshino.logger.critical(f'向广播发起者进行错误回报时发生错误：{type(e)}')
     await session.send(f'广播完成！')
     await asyncio.sleep(120)
-    with await lock:
+    async with lock:
         broadcast_record.clear()
 
 @sucmd('broadcast_list', aliases=('bc_list', '群列表'))
@@ -71,7 +71,7 @@ async def broadcast_list(session: CommandSession):
 
 @sucmd('broadcast_recall', aliases=('bc_recall', '广播撤回'))
 async def broadcast_recall(session: CommandSession):
-    with await lock:
+    async with lock:
         if len(broadcast_record) == 0:
             await session.send(f'无可以撤回的广播')
             return
